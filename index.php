@@ -1,21 +1,12 @@
 <?php
+define("MAIN", "MAIN");
+
 // DEBUGGING ONLY: enable error reporting and display
 // error_reporting(E_ALL);
 // ini_set('display_errors', 1);
 
-// function for returning errors
-function returnError($error = 'ERROR', $code = 400){
-    http_response_code($code);
-    header('Content-Type: text/plain');
-    echo $error;
-    exit(0);
-}
-
-// load Composer-managed dependencies
-require_once __DIR__.'/vendor/autoload.php';
-
-// create a Faker generator
-$faker = Faker\Factory::create();
+// load the common code
+require_once __DIR__ . '/lib.php';
 
 // figure out how many items and whether or not to encode as JSON
 $N = 1;
@@ -35,7 +26,7 @@ $FORMATTER = NULL;
 if(isset($_REQUEST['formatter']) && !empty($_REQUEST['formatter'])){
     $FORMATTER = $_REQUEST['formatter'];
     try{
-        $faker->getFormatter($FORMATTER);
+        $FAKER->getFormatter($FORMATTER);
     }catch(Exception $e){
         returnError("unknown formatter '$FORMATTER'");
     }
@@ -43,11 +34,19 @@ if(isset($_REQUEST['formatter']) && !empty($_REQUEST['formatter'])){
     returnError('no formatter specified');
 }
 
+// figure out whether or not unique values are required
+$UNIQUE = false;
+if(isset($_REQUEST['unique']) && $_REQUEST['unique']) $UNIQUE = true;
+
 // try generate the dummy data
 $data = [];
 try{
+    $f = $FAKER;
+    if($UNIQUE){
+        $f = $f->unique();
+    }
     for($i = 0; $i < $N; $i++){
-        $data[] = $faker->format($FORMATTER);
+        $data[] = $f->format($FORMATTER);
     }
 }catch(Exception $e){
     returnError('failed to generate data with error: '.$e->getMessage());
