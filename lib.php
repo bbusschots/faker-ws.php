@@ -39,5 +39,13 @@ if(isset($_REQUEST['locale'])){
     }
 }
 
+// get the requested response type, if any
+$REQUESTED_TYPE = false;
+if(isset($_REQUEST['type'])){
+    if($_REQUEST['type'] === 'text' || $_REQUEST['type'] === 'json' || $_REQUEST['type'] === 'jsonText'){
+        $REQUESTED_TYPE = $_REQUEST['type'];
+    }
+}
+
 // create a Faker generator
 $FAKER = Faker\Factory::create($LOCALE);

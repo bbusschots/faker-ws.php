@@ -8,17 +8,16 @@ define("MAIN", "MAIN");
 // load the common code
 require_once __DIR__ . '/lib.php';
 
-// figure out how many items and whether or not to encode as JSON
-$N = 1;
-$JSON = NULL;
+// figure out how many items have been requested
+$n = 1;
 if(isset($_REQUEST['n']) && is_numeric($_REQUEST['n']) && $_REQUEST['n'] >= 1){
-    $N = intval($_REQUEST['n']);
+    $n = intval($_REQUEST['n']);
 }
-if(isset($_REQUEST['json'])){
-    $JSON = $_REQUEST['json'] ? true : false;
-}
-if(is_null($JSON)){
-    $JSON = $N > 1 ? true : false;
+
+// figure out what type to respond with
+$type = $n === 1? 'text' : 'json';
+if($REQUESTED_TYPE){
+    $type = $REQUESTED_TYPE;
 }
 
 // figure out which formatter to use
@@ -35,17 +34,17 @@ if(isset($_REQUEST['formatter']) && !empty($_REQUEST['formatter'])){
 }
 
 // figure out whether or not unique values are required
-$UNIQUE = false;
-if(isset($_REQUEST['unique']) && $_REQUEST['unique']) $UNIQUE = true;
+$unique = false;
+if(isset($_REQUEST['unique']) && $_REQUEST['unique']) $unique = true;
 
 // try generate the dummy data
 $data = [];
 try{
     $f = $FAKER;
-    if($UNIQUE){
+    if($unique){
         $f = $f->unique();
     }
-    for($i = 0; $i < $N; $i++){
+    for($i = 0; $i < $n; $i++){
         $data[] = $f->format($FORMATTER);
     }
 }catch(Exception $e){
@@ -58,9 +57,12 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 //return the appropriate content type & content
-if($JSON){
+if($type === 'json'){
     header('Content-Type: application/json');
     echo json_encode($data);
+}else if($type === 'jsonText'){
+    header('Content-Type: text/plain');
+    echo json_encode($data, JSON_PRETTY_PRINT);
 }else{
     header('Content-Type: text/plain');
     echo join("\n", $data);

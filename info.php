@@ -20,7 +20,41 @@ error_reporting($current_error_reporting);
 $providers = array_keys($formattersByProvider);
 sort($providers);
 
-echo "# Locale\n";
+echo "# Parameter Processing\n";
+echo "Parameters are accepted from the following sources (highest precedence to lowest):\n";
+$orderSource = 'request_order';
+$rawOrderString = ini_get($orderSource);
+if(empty($rawOrderString)){
+    $orderSource = 'variables_order';
+    $rawOrderString = ini_get($orderSource);
+}
+$rawSourceList = str_split($rawOrderString);
+$rawActiveSourceList = [];
+foreach($rawSourceList as $s){
+    if(preg_match('/^[GPS]$/', $s)){
+        $rawActiveSourceList[] = $s;
+    }
+}
+$humanSourceList = [];
+foreach($rawActiveSourceList as $s){
+    if($s === 'G'){
+        $humanSourceList[] = 'Query String Parameters';
+    }else if($s === 'P'){
+        $humanSourceList[] = 'Post Data';
+    }else if($s === 'C'){
+        $humanSourceList[] = 'Cookies';
+    }
+}
+$humanSourceList = array_reverse($humanSourceList);
+if(count($humanSourceList)){
+    foreach($humanSourceList as $hs){
+        echo "* $hs\n";
+    }
+    echo "(PHP directive `$orderSource=$rawOrderString`)\n";
+}else{
+    echo "*no parameters being accetpted!*\n";
+}
+echo "\n# Locale\n";
 echo "* Using: $LOCALE\n";
 echo "* Source: $LOCALE_SOURCE\n";
 echo "\n# Generators by Provider\n";
