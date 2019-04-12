@@ -1,0 +1,41 @@
+# Parameter Processing
+
+{{# parameterProcessing.numSources}}
+Parameters are accepted from the following sources (highest precedence to lowest):
+{{# parameterProcessing.humanSourceList}}
+* {{{.}}}
+{{/ parameterProcessing.humanSourceList}}
+(PHP directive `{{{parameterProcessing.sourceDirective}}}={{{parameterProcessing.directiveValue}}}`)
+{{/ parameterProcessing.numSources}}
+{{^ parameterProcessing.numSources}}
+**NO PARAMETERS BEING ACCEPTED!**
+
+Relevant PHP directives:
+* `request_order='{{{parameterProcessing.request_order}}}'`
+* `variables_order='{{{parameterProcessing.variables_order}}}'`
+{{/ parameterProcessing.numSources}}
+
+
+# Locale
+
+* Using     : {{{locale.using}}}
+* Source    : {{{locale.source}}}
+* Raw Value : {{{locale.rawValue}}}
+
+
+# Generators by Provider
+{{# providers}}
+
+## {{{name}}}
+{{# formatters}}
+* `{{{.}}}`
+{{/ formatters}}
+{{^ formatters}}
+
+*This Provider provides no Formatters*
+{{/ formatters}}
+{{/ providers}}
+{{^ providers}}
+
+**NO GENERATORS AVAILABLE!**
+{{/ providers}}

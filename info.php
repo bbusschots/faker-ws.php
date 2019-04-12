@@ -12,8 +12,11 @@ $documentor = new Faker\Documentor($FAKER);
 
 // build up a data object, starting with the locale
 $info = (object)[
-    'locale' => $LOCALE,
-    'localeSource' => $LOCALE_SOURCE,
+    'locale' => (object)[
+        'using' => $LOCALE,
+        'source' => $LOCALE_SOURCE,
+        'rawValue' => $LOCALE_RAW
+    ],
     'providers' => []
 ];
 
@@ -43,6 +46,8 @@ foreach($rawActiveSourceList as $s){
 }
 $humanSourceList = array_reverse($humanSourceList);
 $info->parameterProcessing = (object)[
+    'request_order' => ini_get('request_order'),
+    'variables_order' => ini_get('variables_order'),
     'sourceDirective' => $orderSource,
     'directiveValue' => $rawOrderString,
     'humanSourceList' => $humanSourceList,
@@ -72,27 +77,22 @@ foreach($providers as $p){
     }
     $info->providers[] = $providerInfo;
 }
+$info->numProviders = count($info->providers);
 
-echo "# Parameter Processing\n";
-echo "Parameters are accepted from the following sources (highest precedence to lowest):\n";
-if(count($humanSourceList)){
-    foreach($humanSourceList as $hs){
-        echo "* $hs\n";
-    }
-    echo "(PHP directive `$orderSource=$rawOrderString`)\n";
-}else{
-    echo "*no parameters being accetpted!*\n";
+// render the appropriate response
+$type = $REQUESTED_TYPE ? $REQUESTED_TYPE : 'text';
+if($type === 'json'){
+    header('Content-Type: application/json');
+    echo json_encode($info);
+    exit(0);
+}else if($type === 'jsonText'){
+    header('Content-Type: text/plain');
+    echo json_encode($info, JSON_PRETTY_PRINT);
+    exit(0);
 }
-echo "\n# Locale\n";
-echo "* Using: $LOCALE\n";
-echo "* Source: $LOCALE_SOURCE\n";
-echo "\n# Generators by Provider\n";
-foreach($providers as $p){
-    echo "\n## $p\n";
-    $formatters = array_keys($formattersByProvider[$p]);
-    foreach($formatters as $f){
-        $desc = str_replace("\n", ' ', $f);
-        $desc = preg_replace('/\s+/', ' ', $desc);
-        echo "* $desc\n";
-    }
-}
+// default to text
+$m = new Mustache_Engine([
+    'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__).'/views')
+]);
+header('Content-Type: text/plain');
+echo $m->render('info-text', $info);
