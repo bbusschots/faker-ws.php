@@ -10,18 +10,14 @@ header('Content-Type: text/plain');
 // create a Faker Documentor
 $documentor = new Faker\Documentor($FAKER);
 
-// extract the generators (generates warnings, so suppress them)
-$current_error_reporting = error_reporting();
-error_reporting(E_ERROR);
-$formattersByProvider = $documentor->getFormatters();
-error_reporting($current_error_reporting);
+// build up a data object, starting with the locale
+$info = (object)[
+    'locale' => $LOCALE,
+    'localeSource' => $LOCALE_SOURCE,
+    'providers' => []
+];
 
-// get the list of providers
-$providers = array_keys($formattersByProvider);
-sort($providers);
-
-echo "# Parameter Processing\n";
-echo "Parameters are accepted from the following sources (highest precedence to lowest):\n";
+// gather the parameter processing data
 $orderSource = 'request_order';
 $rawOrderString = ini_get($orderSource);
 if(empty($rawOrderString)){
@@ -46,6 +42,39 @@ foreach($rawActiveSourceList as $s){
     }
 }
 $humanSourceList = array_reverse($humanSourceList);
+$info->parameterProcessing = (object)[
+    'sourceDirective' => $orderSource,
+    'directiveValue' => $rawOrderString,
+    'humanSourceList' => $humanSourceList,
+    'numSources' => count($humanSourceList)
+];
+
+// extract the generators (generates warnings, so suppress them)
+$current_error_reporting = error_reporting();
+error_reporting(E_ERROR);
+$formattersByProvider = $documentor->getFormatters();
+error_reporting($current_error_reporting);
+
+// build a list of generators by provider
+$providers = array_keys($formattersByProvider);
+sort($providers);
+foreach($providers as $p){
+    $formatters = array_keys($formattersByProvider[$p]);
+    $providerInfo = (object)[
+        'name' => $p,
+        'formatters' => [],
+        'numFormatters' => count($formatters)
+    ];
+    foreach($formatters as $f){
+        $desc = str_replace("\n", ' ', $f);
+        $desc = preg_replace('/\s+/', ' ', $desc);
+        $providerInfo->formatters[] = $desc;
+    }
+    $info->providers[] = $providerInfo;
+}
+
+echo "# Parameter Processing\n";
+echo "Parameters are accepted from the following sources (highest precedence to lowest):\n";
 if(count($humanSourceList)){
     foreach($humanSourceList as $hs){
         echo "* $hs\n";
