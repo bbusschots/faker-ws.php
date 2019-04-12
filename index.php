@@ -21,16 +21,34 @@ if($REQUESTED_TYPE){
 }
 
 // figure out which formatter to use
-$FORMATTER = NULL;
+$formatter = NULL;
 if(isset($_REQUEST['formatter']) && !empty($_REQUEST['formatter'])){
-    $FORMATTER = $_REQUEST['formatter'];
+    $formatter = $_REQUEST['formatter'];
     try{
-        $FAKER->getFormatter($FORMATTER);
+        $FAKER->getFormatter($formatter);
     }catch(Exception $e){
-        returnError("unknown formatter '$FORMATTER'");
+        returnError("unknown formatter '$formatter'");
     }
 }else{
     returnError('no formatter specified');
+}
+
+// figure out what args to pass, if any
+$args = [];
+if(isset($_REQUEST['args'])){
+    try{
+        $parsedArgs = json_decode($_REQUEST['args']);
+        if(!is_array($parsedArgs)) returnError("args did not parse to an array");
+        $args = $parsedArgs;
+    }catch(Exception $e){
+        returnError("failed to parse args as JSON");
+    }
+}else{
+    $argNum = 1;
+    while(isset($_REQUEST['arg'.$argNum])){
+        $args[] = $_REQUEST['arg'.$argNum];
+        $argNum++;
+    }
 }
 
 // figure out whether or not unique values are required
@@ -45,7 +63,7 @@ try{
         $f = $f->unique();
     }
     for($i = 0; $i < $n; $i++){
-        $data[] = $f->format($FORMATTER);
+        $data[] = $f->format($formatter, $args);
     }
 }catch(Exception $e){
     returnError('failed to generate data with error: '.$e->getMessage());
