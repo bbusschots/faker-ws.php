@@ -1,10 +1,6 @@
 <?php
 define("MAIN", "MAIN");
 
-// DEBUGGING ONLY: enable error reporting and display
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
-
 // load the common code
 require_once __DIR__ . '/lib.php';
 
@@ -82,6 +78,10 @@ if($type === 'json'){
     header('Content-Type: text/plain');
     echo json_encode($data, JSON_PRETTY_PRINT);
 }else{
+    // figure out what seperator to use
+    $separator = isset($_REQUEST['separator']) ? $_REQUEST['separator'] : "\n";
+    
+    // return the data appropriately separated
     header('Content-Type: text/plain');
-    echo join("\n", $data);
+    echo join($separator, $data);
 }
