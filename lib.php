@@ -16,6 +16,25 @@ function returnError($error = 'ERROR', $code = 400){
 // load Composer-managed dependencies
 require_once __DIR__.'/vendor/autoload.php';
 
+// apply parameter aliases
+$PARAMETER_ALIASES = (object)[
+    'default' => ['d', 'def'],
+    'formatter' => ['f'],
+    'locale' => ['l', 'loc'],
+    'optional' => ['o', 'opt'],
+    'separator' => ['s', 'sep'],
+    'type' => ['t', 'want'],
+    'unique' => ['u'],
+    'weight' => ['w']
+];
+foreach($PARAMETER_ALIASES as $param => $aliases){
+    foreach(array_reverse($aliases) as $alias){
+        if(!isset($_REQUEST[$param]) && isset($_REQUEST[$alias])){
+            $_REQUEST[$param] = $_REQUEST[$alias];
+        }
+    }
+}
+
 // figure out what locale to use
 $LOCALE = Faker\Factory::DEFAULT_LOCALE;
 $LOCALE_RAW = $LOCALE;
