@@ -27,13 +27,16 @@ The script reads parameters from PHP's `$_REQUEST` super-global variable, so dep
 ### Optional Parameters
 * `arg1` … `argn` — separate numbered parameters to specify arguments to be passed to the formatter. E.g. `formatter=password&arg1=8&arg2=16` to pass `8` and `16` as the first and second arguments to the `password` formatter. Processing will stop at the first missing argument, so if you pass `arg1` and `arg3` then `arg3` will be ignored because processing will have stopped at the missing `arg2`.
 * `args` — arguments to be passed to the formatter as a JSON string representing an array. Because special characters need to be URL-escaped in the query string this parameter is best passed as post data.
+* `default` — the value to use as the default value when the `optional` parameter has a truthy value. The default value is the empty string.
 * `locale` — the locale to use when constructing the Faker Factory object that will be used to generate the data. The locale can be in any format that is understood by PHP's [`locale_get_primary_language()`](https://php.net/manual/en/locale.getprimarylanguage.php) and [`locale_get_region()`](https://php.net/manual/en/locale.getregion.php) functions. If this parameter is not passed then the `Accept-Language` HTTP Request header tried, and if that's not present then Faker's default locale (`en_US`) is used. You can test your locale via `info.php` — it will process the locale in the same way `index.php` does and display the result.
 * `n` — the number of pieces of data to generate. The value must be a positive integer or it will be ignored. The default is `1`.
+* `optional` — a truthy value for this parameter will enable Faker's `.optional()` modifier. If enabled the modifier will be called with values from the `weight` and `default` parameters.
 * `type` — the requested output format, must be one of `text`, `json`, or `jsonText`. The default is `text` for `n=1` and `json` when `n` is greater than 1.
   - `json` — the data is returned as a JSON string represening an array of values. The response will have the MIME-Type `application/json`.
   - `jsonText` — the data is returned as a pretty-printed JSON string representing an array of values. The response will have the MIME-Type `text/plain`.
   - `text` — the data is returned as a single string separated by `separator`. The response will have the MIME-Type `text/plain`.
 * `unique` — a truthy value for this parameter will enable Faker's `.unique()` modifier.
+* `weight` — the weigting to use when `optional` has a truthy value. Defaults to `0.5`.
 
 
 ## Suggested NGINX Config

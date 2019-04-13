@@ -51,6 +51,19 @@ if(isset($_REQUEST['args'])){
 $unique = false;
 if(isset($_REQUEST['unique']) && $_REQUEST['unique']) $unique = true;
 
+// figure out whether or not to use the .optional() modifier
+$optional = isset($_REQUEST['optional']) && $_REQUEST['optional'] ? true : false;
+$weight = 0.5;
+$default = '';
+if($optional){
+    if(isset($_REQUEST['weight']) && is_numeric($_REQUEST['weight']) && $_REQUEST['weight'] >= 0 && $_REQUEST['weight'] <= 1){
+        $weight = floatval($_REQUEST['weight']);
+    }
+    if(isset($_REQUEST['default'])){
+        $default = $_REQUEST['default'];
+    }
+}
+
 // try generate the dummy data
 $data = [];
 try{
@@ -59,14 +72,15 @@ try{
         $f = $f->unique();
     }
     for($i = 0; $i < $n; $i++){
-        $data[] = $f->format($formatter, $args);
+        if($optional){
+            $data[] = $f->optional($weight, $default)->format($formatter, $args);
+        }else{
+            $data[] = $f->format($formatter, $args);
+        }
     }
 }catch(Exception $e){
     returnError('failed to generate data with error: '.$e->getMessage());
 }
-
-// figure out whther or not to use the .optional() modifier
-// TO DO
 
 // prevent caching
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
