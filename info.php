@@ -79,6 +79,9 @@ foreach($providers as $p){
 }
 $info->numProviders = count($info->providers);
 
+// allow corss-origin use
+header("Access-Control-Allow-Origin: *");
+
 // render the appropriate response
 $type = $REQUESTED_TYPE ? $REQUESTED_TYPE : 'text';
 if($type === 'json'){

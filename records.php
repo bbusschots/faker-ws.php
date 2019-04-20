@@ -162,6 +162,9 @@ header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
+// allow corss-origin use
+header("Access-Control-Allow-Origin: *");
+
 //return the appropriate content type & content
 if($type === 'json'){
     header('Content-Type: application/json');
