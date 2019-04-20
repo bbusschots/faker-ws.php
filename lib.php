@@ -22,9 +22,11 @@ $PARAMETER_ALIASES = (object)[
     'formatter' => ['f'],
     'locale' => ['l', 'loc'],
     'optional' => ['o', 'opt'],
+    'recordSeparator' => ['rs', 'recsep'],
     'separator' => ['s', 'sep'],
     'type' => ['t', 'want'],
     'unique' => ['u'],
+    'valueSeparator' => ['vs', 'valsep'],
     'weight' => ['w']
 ];
 foreach($PARAMETER_ALIASES as $param => $aliases){
