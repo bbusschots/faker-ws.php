@@ -49,17 +49,21 @@ location /fakerWS/ {
   try_files $uri $uri/;
   rewrite ^/fakerWS/info/?$ /fakerWS/info.php?$args last;
   rewrite ^/fakerWS/info/(json|text|jsonText)/?$ /fakerWS/info.php?type=$1&$args last;
-  rewrite ^/fakerWS/records/(json|text|jsonText)/?$ /fakerWS/records.php?type=$1&$args last;
-  rewrite ^/fakerWS/records/(\d+)/(json|text|jsonText)/?$ /fakerWS/records.php?n=$1&type=$2&$args last;
   rewrite ^/fakerWS/(\w+)/?$ /fakerWS/index.php?formatter=$1&$args last;
   rewrite ^/fakerWS/(\w+)/(\d+)/?$ /fakerWS/index.php?formatter=$1&n=$2&$args last;
   rewrite ^/fakerWS/(\w+)/(\d+)/(json|text|jsonText)/?$ /fakerWS/index.php?formatter=$1&n=$2&type=$3&$args last;
+  rewrite ^/fakerWS/records/?$ /fakerWS/records.php?$args last;
+  rewrite ^/fakerWS/records/(\d+)/?$ /fakerWS/records.php?n=$1&$args last;
+  rewrite ^/fakerWS/records/(\d+)/(json|text|jsonText)/?$ /fakerWS/records.php?n=$1&type=$2&$args last;
 }
 ```
 
-The `try_files` line makes the info page available at `http://DOMAIN.TLD/fakerWS/info`.
-
-The three re-write lines allow URLs of the forms:
-1. `http://DOMAIN.TLD/fakerWS/FORMATTER`, e.g. `http://mydomain.tld/fakerWS/name` to get a single value from the `name` formatter.
-2. `http://DOMAIN.TLD/fakerWS/FORMATTER/N`, e.g. `http://mydomain.tld/fakerWS/name/5` to get 5 values from the `name` formatter.
-3. `http://DOMAIN.TLD/fakerWS/FORMATTER/N/TYPE`, e.g. `http://mydomain.tld/fakerWS/name/5/text` to get 5 values from the `name` formatter in plain text.
+The re-write lines allow URLs of the forms:
+1. `http://DOMAIN.TLD/fakerWS/info`, e.g. `http://mydomain.tld/fakerWS/info` to get the info page in the default text format.
+2. `http://DOMAIN.TLD/fakerWS/info/TYPE`, e.g. `http://mydomain.tld/fakerWS/info/json` to get the info page in json format.
+3. `http://DOMAIN.TLD/fakerWS/FORMATTER`, e.g. `http://mydomain.tld/fakerWS/name` to get a single value from the `name` formatter.
+4. `http://DOMAIN.TLD/fakerWS/FORMATTER/N`, e.g. `http://mydomain.tld/fakerWS/name/5` to get 5 values from the `name` formatter.
+5. `http://DOMAIN.TLD/fakerWS/FORMATTER/N/TYPE`, e.g. `http://mydomain.tld/fakerWS/name/5/text` to get 5 values from the `name` formatter in plain text.
+6. `http://DOMAIN.TLD/fakerWS/records?PARAMETERS`, e.g. `http://mydomain.tld/fakerWS/records?f1=name&f2=email` to get one record consisting of a name and an email address in the default (for single values) text format.
+7. `http://DOMAIN.TLD/fakerWS/records/N?PARAMETERS`, e.g. `http://mydomain.tld/fakerWS/records/5?f1=name&f2=email` to get five records each consistong of a name and an email address in the default (for multiple values) JSON format.
+8. `http://DOMAIN.TLD/fakerWS/records/N/TYPE?PARAMETERS`, e.g. `http://mydomain.tld/fakerWS/records/5/text?f1=name&f2=email` to get five records each consistong of a name and an email address in text format.
