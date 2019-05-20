@@ -4,9 +4,6 @@ define("MAIN", "MAIN");
 // load the common code
 require_once __DIR__ . '/lib.php';
 
-// set the content type
-header('Content-Type: text/plain');
-
 // create a Faker Documentor
 $documentor = new Faker\Documentor($FAKER);
 
