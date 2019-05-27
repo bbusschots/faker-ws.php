@@ -22,15 +22,16 @@ foreach($formattersByProvider as $providerPath => $formatters){
     // loop through all the formatters in the provider
     foreach($formatters as $formatterDescription => $sampleOutput){
         // extract the formatter name from its description
-        $nameMatch = [];
         $formatterName = '';
-        preg_match('/^[^(]+/', $formatterDescription, $nameMatch);
-        if(isset($nameMatch[0])){
-            $formatterName = $nameMatch[0];
-        }else{
+        try{
+            $formatterName = nameFromFromatterDesc($formatterDescription);
+        }catch(Exception $e){
             error_log("failed to extract name from formatter description, skipping: $formatterDescription");
             continue;
         }
+        
+        // skip black-listed formatters
+        if(isset($FORMATTER_BLACKLIST_LOOKUP->{$formatterName})) continue;
         
         // store the formatter
         $formattersLookup->{$formatterName} = true;

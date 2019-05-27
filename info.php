@@ -61,7 +61,22 @@ error_reporting($current_error_reporting);
 $providers = array_keys($formattersByProvider);
 sort($providers);
 foreach($providers as $p){
-    $formatters = array_keys($formattersByProvider[$p]);
+    $formatters = [];
+    foreach(array_keys($formattersByProvider[$p]) as $f){
+        // try extract the formatter name from the formatter description
+        $fName = '';
+        try{
+            $fName = nameFromFromatterDesc($f);
+        }catch(Exception $e){
+            error_log("skipping formatter - failed to extract name from description: $f");
+            continue;
+        }
+        // skip blacklisted formatters
+        if(isset($FORMATTER_BLACKLIST_LOOKUP->{$fName})) continue;
+        
+        // store the formatter
+        array_push($formatters, $f);
+    }
     $providerInfo = (object)[
         'name' => $p,
         'formatters' => [],

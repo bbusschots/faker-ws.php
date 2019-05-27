@@ -23,6 +23,9 @@ while(isset($_REQUEST['f'.$fNum])){
     $fieldDef = (object)[];
     try{
         // make sure the formatter exists
+        if(isset($FORMATTER_BLACKLIST_LOOKUP->{$_REQUEST['f'.$fNum]})){
+            throw new Exception('incompatible formatter');
+        }
         $FAKER->getFormatter($_REQUEST['f'.$fNum]);
         
         $fieldDef->formatter = $_REQUEST['f'.$fNum];
@@ -128,7 +131,14 @@ if($optional){
     }
 }
 
-// try generate the dummy records
+//
+// Generate the dummy data
+//
+
+// enable the customer error handler that converts warnings to errors
+enableWarningToErrorConversion();
+
+// try generate the records
 $records = [];
 try{
     foreach($recordDefinition as $fieldName => $field){
@@ -157,6 +167,13 @@ try{
     returnError('failed to generate data with error: '.$e->getMessage());
 }
 
+// restore the default error handling
+restore_error_handler();
+
+//
+// Send the generated data
+//
+
 // prevent caching
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
@@ -184,7 +201,7 @@ if($type === 'json'){
     foreach($records as $record){
         $fieldStrings = [];
         foreach($record as $name => $value){
-            $fieldStrings[] = $name.$valueSeparator.$value;
+            $fieldStrings[] = $name.$valueSeparator.filterToPlainText($value);
         }
         $recordStrings[] = join($separator, $fieldStrings);
     }
